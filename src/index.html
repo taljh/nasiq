@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نَسيق - حاسبة تسعير العبايات</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- شاشة تسجيل الدخول -->
+        <div id="auth-screen" class="screen">
+            <div class="auth-container">
+                <div class="logo-container">
+                    <img src="logo.png" alt="نَسيق" class="logo">
+                    <h1>نَسيق</h1>
+                    <p>نظام احترافي لتسعير العبايات</p>
+                </div>
+                
+                <div class="tabs">
+                    <button id="login-tab" class="tab-btn active">تسجيل الدخول</button>
+                    <button id="register-tab" class="tab-btn">إنشاء حساب</button>
+                </div>
+                
+                <div id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email">البريد الإلكتروني</label>
+                        <input type="email" id="login-email" placeholder="أدخل بريدك الإلكتروني">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">كلمة المرور</label>
+                        <input type="password" id="login-password" placeholder="أدخل كلمة المرور">
+                    </div>
+                    <button id="login-btn" class="primary-btn">تسجيل الدخول</button>
+                    <button id="guest-btn" class="secondary-btn">الدخول كزائر</button>
+                </div>
+                
+                <div id="register-form" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="register-name">الاسم</label>
+                        <input type="text" id="register-name" placeholder="أدخل اسمك">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">البريد الإلكتروني</label>
+                        <input type="email" id="register-email" placeholder="أدخل بريدك الإلكتروني">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">كلمة المرور</label>
+                        <input type="password" id="register-password" placeholder="أدخل كلمة المرور">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">تأكيد كلمة المرور</label>
+                        <input type="password" id="register-confirm-password" placeholder="أعد إدخال كلمة المرور">
+                    </div>
+                    <button id="register-btn" class="primary-btn">إنشاء حساب</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الشاشة الرئيسية -->
+        <div id="main-screen" class="screen" style="display: none;">
+            <!-- الشريط العلوي -->
+            <header class="top-bar">
+                <div class="logo-container">
+                    <img src="logo.png" alt="نَسيق" class="small-logo">
+                    <h2>نَسيق</h2>
+                </div>
+                <div class="user-menu">
+                    <span id="user-name">مرحباً، <span id="display-name">المستخدم</span></span>
+                    <button id="logout-btn" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+                    <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i></button>
+                </div>
+            </header>
+
+            <!-- القائمة الجانبية -->
+            <nav class="sidebar">
+                <ul>
+                    <li><a href="#" id="dashboard-link" class="active"><i class="fas fa-chart-line"></i> لوحة التحكم</a></li>
+                    <li><a href="#" id="products-link"><i class="fas fa-tshirt"></i> المنتجات</a></li>
+                    <li><a href="#" id="add-product-link"><i class="fas fa-plus-circle"></i> إضافة منتج</a></li>
+                    <li><a href="#" id="settings-link"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                    <li><a href="#" id="help-link"><i class="fas fa-question-circle"></i> المساعدة</a></li>
+                </ul>
+            </nav>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="content">
+                <!-- لوحة التحكم -->
+                <section id="dashboard-section" class="section">
+                    <h2>لوحة التحكم</h2>
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-tshirt"></i></div>
+                            <div class="stat-info">
+                                <h3>إجمالي المنتجات</h3>
+                                <p id="total-products">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                            <div class="stat-info">
+                                <h3>متوسط السعر</h3>
+                                <p id="average-price">0 ريال</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="stat-info">
+                                <h3>إجمالي الأرباح المتوقعة</h3>
+                                <p id="total-revenue">0 ريال</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>توزيع المنتجات حسب الفئة</h3>
+                            <canvas id="category-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recent-products">
+                        <h3>آخر المنتجات المضافة</h3>
+                        <div id="recent-products-list" class="products-grid">
+                            <!-- سيتم إضافة المنتجات هنا ديناميكياً -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قائمة المنتجات -->
+                <section id="products-section" class="section" style="display: none;">
+                    <h2>قائمة المنتجات</h2>
+                    <div class="products-controls">
+                        <div class="search-container">
+                            <input type="text" id="product-search" placeholder="البحث عن منتج...">
+                            <button id="search-btn"><i class="fas fa-search"></i></button>
+                        </div>
+                        <div class="filter-container">
+                            <label for="category-filter">تصفية حسب الفئة:</label>
+                            <select id="category-filter">
+                                <option value="all">الكل</option>
+                                <option value="اقتصادية">اقتصادية</option>
+                                <option value="يومية">يومية</option>
+                                <option value="راقية">راقية</option>
+                                <option value="فاخرة جداً">فاخرة جداً</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="products-list" class="products-grid">
+                        <!-- سيتم إضافة المنتجات هنا ديناميكياً -->
+                    </div>
+                </section>
+
+                <!-- إضافة منتج -->
+                <section id="add-product-section" class="section" style="display: none;">
+                    <h2 id="product-form-title">إضافة منتج جديد</h2>
+                    <form id="product-form">
+                        <input type="hidden" id="product-id">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-name">اسم المنتج</label>
+                                <input type="text" id="product-name" placeholder="أدخل اسم المنتج" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-code">رمز المنتج</label>
+                                <input type="text" id="product-code" placeholder="أدخل رمز المنتج (اختياري)">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="target-category">الفئة المستهدفة</label>
+                                <select id="target-category" required>
+                                    <option value="اقتصادية">اقتصادية</option>
+                                    <option value="يومية" selected>يومية</option>
+                                    <option value="راقية">راقية</option>
+                                    <option value="فاخرة جداً">فاخرة جداً</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3>تكاليف الأقمشة</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="main-fabric-cost">تكلفة القماش الأساسي</label>
+                                <input type="number" id="main-fabric-cost" min="0" step="0.01" placeholder="أدخل التكلفة" required>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="has-secondary-fabric">
+                                <label for="has-secondary-fabric">إضافة قماش ثانوي</label>
+                            </div>
+                        </div>
+
+                        <div id="secondary-fabric-section" class="form-row" style="display: none;">
+                            <div class="form-group">
+                                <label for="secondary-fabric-cost">تكلفة القماش الثانوي</label>
+                                <input type="number" id="secondary-fabric-cost" min="0" step="0.01" placeholder="أدخل التكلفة">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="has-scarf">
+                                <label for="has-scarf">إضافة طرحة</label>
+                            </div>
+                        </div>
+
+                        <div id="scarf-section" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="main-scarf-cost">تكلفة قماش الطرحة الأساسي</label>
+                                    <input type="number" id="main-scarf-cost" min="0" step="0.01" placeholder="أدخل التكلفة">
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="has-secondary-scarf">
+                                    <label for="has-secondary-scarf">إضافة قماش ثانوي للطرحة</label>
+                                </div>
+                            </div>
+
+                            <div id="secondary-scarf-section" class="form-row" style="display: none;">
+                                <div class="form-group">
+                                    <label for="secondary-scarf-cost">تكلفة قماش الطرحة الثانوي</label>
+                                    <input type="number" id="secondary-scarf-cost" min="0" step="0.01" placeholder="أدخل التكلفة">
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3>تكاليف إضافية</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sewing-cost">تكلفة الخياطة</label>
+                                <input type="number" id="sewing-cost" min="0" step="0.01" placeholder="أدخل التكلفة" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="packaging-cost">تكلفة التغليف</label>
+                                <input type="number" id="packaging-cost" min="0" step="0.01" placeholder="أدخل التكلفة" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shipping-cost">تكلفة الشحن</label>
+                                <input type="number" id="shipping-cost" min="0" step="0.01" placeholder="أدخل التكلفة" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="additional-expenses-rate">نسبة المصاريف الإضافية (%)</label>
+                                <input type="number" id="additional-expenses-rate" min="0" max="100" step="0.1" placeholder="أدخل النسبة" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profit-rate">نسبة الربح (%)</label>
+                                <input type="number" id="profit-rate" min="0" max="1000" step="0.1" placeholder="أدخل النسبة" required>
+                            </div>
+                        </div>
+
+                        <div class="pricing-result">
+                            <div class="result-item">
+                                <span>التكلفة الإجمالية:</span>
+                                <span id="total-cost">0 ريال</span>
+                            </div>
+                            <div class="result-item">
+                                <span>السعر النهائي:</span>
+                                <span id="final-price">0 ريال</span>
+                            </div>
+                            <div class="result-item">
+                                <span>الفئة المحسوبة:</span>
+                                <span id="calculated-category">-</span>
+                            </div>
+                        </div>
+
+                        <div id="category-warning" class="warning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>تنبيه: الفئة المحسوبة لا تتطابق مع الفئة المستهدفة!</span>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" id="calculate-btn" class="secondary-btn">حساب السعر</button>
+                            <button type="submit" id="save-product-btn" class="primary-btn">حفظ المنتج</button>
+                            <button type="button" id="cancel-btn" class="text-btn">إلغاء</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- الإعدادات -->
+                <section id="settings-section" class="section" style="display: none;">
+                    <h2>إعدادات المشروع</h2>
+                    <form id="settings-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="project-name">اسم المشروع</label>
+                                <input type="text" id="project-name" placeholder="أدخل اسم المشروع">
+                            </div>
+                            <div class="form-group">
+                                <label for="default-category">الفئة الافتراضية</label>
+                                <select id="default-category">
+                                    <option value="اقتصادية">اقتصادية</option>
+                                    <option value="يومية" selected>يومية</option>
+                                    <option value="راقية">راقية</option>
+                                    <option value="فاخرة جداً">فاخرة جداً</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="monthly-products">عدد المنتجات الشهرية</label>
+                                <input type="number" id="monthly-products" min="1" placeholder="أدخل العدد">
+                            </div>
+                            <div class="form-group">
+                                <label for="default-profit-rate">نسبة الربح الافتراضية (%)</label>
+                                <input type="number" id="default-profit-rate" min="0" max="1000" step="0.1" placeholder="أدخل النسبة">
+                            </div>
+                        </div>
+
+                        <h3>التكاليف الثابتة</h3>
+                        <div id="fixed-costs-list">
+                            <!-- سيتم إضافة التكاليف الثابتة هنا ديناميكياً -->
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="new-cost-name">اسم التكلفة</label>
+                                <input type="text" id="new-cost-name" placeholder="أدخل اسم التكلفة">
+                            </div>
+                            <div class="form-group">
+                                <label for="new-cost-amount">المبلغ</label>
+                                <input type="number" id="new-cost-amount" min="0" step="0.01" placeholder="أدخل المبلغ">
+                            </div>
+                            <button type="button" id="add-cost-btn" class="icon-btn"><i class="fas fa-plus"></i></button>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="submit" id="save-settings-btn" class="primary-btn">حفظ الإعدادات</button>
+                            <button type="button" id="export-data-btn" class="secondary-btn">تصدير البيانات</button>
+                            <button type="button" id="import-data-btn" class="secondary-btn">استيراد البيانات</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- المساعدة -->
+                <section id="help-section" class="section" style="display: none;">
+                    <h2>المساعدة</h2>
+                    <div class="help-content">
+                        <div class="help-card">
+                            <h3>كيفية استخدام النظام</h3>
+                            <p>نظام "نَسيق" هو أداة احترافية لتسعير العبايات بناءً على التكاليف الفعلية ونسب الربح المستهدفة. يمكنك إضافة منتجاتك وتحديد تكاليفها المختلفة، وسيقوم النظام بحساب السعر النهائي وتصنيف المنتج ضمن الفئة المناسبة.</p>
+                        </div>
+
+                        <div class="help-card">
+                            <h3>إضافة منتج جديد</h3>
+                            <ol>
+                                <li>انتقل إلى صفحة "إضافة منتج"</li>
+                                <li>أدخل اسم المنتج والفئة المستهدفة</li>
+                                <li>أدخل تكاليف الأقمشة والخياطة والتغليف والشحن</li>
+                                <li>حدد نسبة المصاريف الإضافية ونسبة الربح</li>
+                                <li>اضغط على "حساب السعر" لمعاينة النتائج</li>
+                                <li>اضغط على "حفظ المنتج" لإضافة المنتج إلى قائمة منتجاتك</li>
+                            </ol>
+                        </div>
+
+                        <div class="help-card">
+                            <h3>تصنيف المنتجات</h3>
+                            <p>يتم تصنيف المنتجات إلى أربع فئات بناءً على السعر النهائي:</p>
+                            <ul>
+                                <li><strong>اقتصادية:</strong> من 0 إلى 300 ريال</li>
+                                <li><strong>يومية:</strong> من 301 إلى 600 ريال</li>
+                                <li><strong>راقية:</strong> من 601 إلى 1000 ريال</li>
+                                <li><strong>فاخرة جداً:</strong> أكثر من 1000 ريال</li>
+                            </ul>
+                        </div>
+
+                        <div class="help-card">
+                            <h3>نصائح لتسعير أفضل</h3>
+                            <ul>
+                                <li>حدد الفئة المستهدفة بناءً على جودة المواد المستخدمة وشريحة العملاء</li>
+                                <li>راقب تنبيهات عدم تطابق الفئة المحسوبة مع الفئة المستهدفة</li>
+                                <li>عدل نسبة الربح لتحقيق التوازن بين المنافسة والربحية</li>
+                                <li>قم بتحديث التكاليف الثابتة بانتظام لضمان دقة الحسابات</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- نافذة عرض تفاصيل المنتج -->
+        <div id="product-details-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modal-product-name">اسم المنتج</h2>
+                
+                <div class="product-details">
+                    <div class="detail-group">
+                        <h3>معلومات أساسية</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">الرمز:</span>
+                            <span id="modal-product-code">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الفئة المستهدفة:</span>
+                            <span id="modal-target-category">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الفئة المحسوبة:</span>
+                            <span id="modal-calculated-category">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <h3>تكاليف الأقمشة</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">القماش الأساسي:</span>
+                            <span id="modal-main-fabric">-</span>
+                        </div>
+                        <div id="modal-secondary-fabric-row" class="detail-item">
+                            <span class="detail-label">القماش الثانوي:</span>
+                            <span id="modal-secondary-fabric">-</span>
+                        </div>
+                    </div>
+                    
+                    <div id="modal-scarf-group" class="detail-group">
+                        <h3>تكاليف الطرحة</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">قماش الطرحة الأساسي:</span>
+                            <span id="modal-main-scarf">-</span>
+                        </div>
+                        <div id="modal-secondary-scarf-row" class="detail-item">
+                            <span class="detail-label">قماش الطرحة الثانوي:</span>
+                            <span id="modal-secondary-scarf">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <h3>تكاليف إضافية</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">الخياطة:</span>
+                            <span id="modal-sewing-cost">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">التغليف:</span>
+                            <span id="modal-packaging-cost">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">الشحن:</span>
+                            <span id="modal-shipping-cost">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">نسبة المصاريف الإضافية:</span>
+                            <span id="modal-additional-expenses">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <h3>التسعير</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">التكلفة الإجمالية:</span>
+                            <span id="modal-total-cost">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">نسبة الربح:</span>
+                            <span id="modal-profit-rate">-</span>
+                        </div>
+                        <div class="detail-item highlight">
+                            <span class="detail-label">السعر النهائي:</span>
+                            <span id="modal-final-price">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="edit-product-btn" class="secondary-btn"><i class="fas fa-edit"></i> تعديل</button>
+                    <button id="delete-product-btn" class="danger-btn"><i class="fas fa-trash"></i> حذف</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة تأكيد الحذف -->
+        <div id="confirm-delete-modal" class="modal">
+            <div class="modal-content">
+                <h2>تأكيد الحذف</h2>
+                <p>هل أنت متأكد من رغبتك في حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                <div class="modal-actions">
+                    <button id="confirm-delete-btn" class="danger-btn">نعم، حذف</button>
+                    <button id="cancel-delete-btn" class="secondary-btn">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة الإشعارات -->
+        <div id="notification" class="notification">
+            <div class="notification-content">
+                <i id="notification-icon" class="fas fa-check-circle"></i>
+                <span id="notification-message">تمت العملية بنجاح</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
